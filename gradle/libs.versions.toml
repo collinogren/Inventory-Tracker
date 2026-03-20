@@ -1,24 +1,32 @@
 [versions]
-agp = "8.13.2"
+agp = "9.1.0"
+coreTesting = "2.2.0"
 junit = "4.13.2"
+junitJupiterApi = "6.0.3"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
 appcompat = "1.7.1"
 material = "1.13.0"
 activity = "1.12.1"
 constraintlayout = "2.2.1"
+mockitoCore = "5.23.0"
 recyclerview = "1.4.0"
+robolectric = "4.16.1"
 roomCompilerVersion = "2.8.4"
 
 [libraries]
+core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiterApi" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "roomCompilerVersion"}
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomCompilerVersion" }
 
