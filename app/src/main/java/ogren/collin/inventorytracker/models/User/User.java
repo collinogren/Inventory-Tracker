@@ -18,12 +18,23 @@ public class User {
     @ColumnInfo(name = "password")
     private final String password;
 
-    public User(String username, String password) {
+    public User(String username, String password) throws IllegalArgumentException {
+        if (
+            username == null || username.isEmpty() ||
+            password == null || password.isEmpty()
+        ) {
+            throw new IllegalArgumentException();
+        }
+
         this.username = username;
         this.password = password;
     }
 
-    public void setId(long id) {
+    public void setId(long id) throws IllegalArgumentException {
+        if (id < 0) {
+            throw new IllegalArgumentException();
+        }
+
         this.id = id;
     }
 

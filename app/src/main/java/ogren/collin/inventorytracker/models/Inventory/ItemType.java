@@ -26,12 +26,20 @@ public class ItemType {
 
     @Ignore
     public ItemType(String name, long quantity) {
+        if (name == null || name.isEmpty()) {
+            name = "Unnamed Item";
+        }
+
         this.userId = InventoryActivity.getUserId();
         this.name = name;
         this.quantity = quantity;
     }
 
     public ItemType(long id, long userId, String name, long quantity) {
+        if (name == null || name.isEmpty()) {
+            name = "Unnamed Item";
+        }
+
         this.id = id;
         this.userId = userId;
         this.name = name;
@@ -51,6 +59,10 @@ public class ItemType {
     }
 
     public void setName(String name) {
+        if (name == null || name.isEmpty()) {
+            name = "Unnamed Item";
+        }
+
         this.name = name;
     }
 
