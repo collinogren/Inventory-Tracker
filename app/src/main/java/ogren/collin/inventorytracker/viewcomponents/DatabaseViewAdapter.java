@@ -28,8 +28,8 @@ import java.util.ArrayList;
 
 import ogren.collin.inventorytracker.R;
 import ogren.collin.inventorytracker.controllers.EditActivity;
-import ogren.collin.inventorytracker.database.InventoryDatabase;
-import ogren.collin.inventorytracker.models.Inventory.ItemType;
+import ogren.collin.inventorytracker.database.sqlite.InventoryDatabase;
+import ogren.collin.inventorytracker.models.sqlite.inventory.ItemType;
 
 public class DatabaseViewAdapter extends RecyclerView.Adapter<DatabaseViewAdapter.ViewHolder> {
 

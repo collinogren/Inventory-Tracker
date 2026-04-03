@@ -4,9 +4,7 @@ plugins {
 
 android {
     namespace = "ogren.collin.inventorytracker"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "ogren.collin.inventorytracker"
@@ -47,6 +45,7 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.recyclerview)
+    implementation(libs.snowpark)
     testImplementation(libs.junit)
     testImplementation(libs.mockito.core)
     testImplementation(libs.core.testing)

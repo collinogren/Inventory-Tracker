@@ -1,20 +1,13 @@
 package ogren.collin.inventorytracker.controllers;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 
 import androidx.activity.EdgeToEdge;
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -27,17 +20,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.search.SearchBar;
 import com.google.android.material.search.SearchView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Random;
 
 import ogren.collin.inventorytracker.R;
-import ogren.collin.inventorytracker.database.InventoryDatabase;
-import ogren.collin.inventorytracker.models.Inventory.ItemType;
+import ogren.collin.inventorytracker.database.sqlite.InventoryDatabase;
+import ogren.collin.inventorytracker.models.sqlite.inventory.ItemType;
 import ogren.collin.inventorytracker.viewcomponents.DatabaseViewAdapter;
 
 public class InventoryActivity extends AppCompatActivity {

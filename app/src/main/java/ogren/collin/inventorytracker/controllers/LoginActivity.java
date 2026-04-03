@@ -17,8 +17,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.Objects;
 
 import ogren.collin.inventorytracker.R;
-import ogren.collin.inventorytracker.database.InventoryDatabase;
-import ogren.collin.inventorytracker.models.User.User;
+import ogren.collin.inventorytracker.database.sqlite.InventoryDatabase;
+import ogren.collin.inventorytracker.models.sqlite.user.User;
 
 // Activity to provide login functionality for users.
 public class LoginActivity extends AppCompatActivity {

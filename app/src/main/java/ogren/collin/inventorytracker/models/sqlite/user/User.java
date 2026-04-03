@@ -1,4 +1,4 @@
-package ogren.collin.inventorytracker.models.User;
+package ogren.collin.inventorytracker.models.sqlite.user;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;

@@ -14,10 +14,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import ogren.collin.inventorytracker.models.Inventory.ItemType;
-import ogren.collin.inventorytracker.models.Inventory.ItemTypeDao;
-import ogren.collin.inventorytracker.models.User.User;
-import ogren.collin.inventorytracker.models.User.UserDao;
+import ogren.collin.inventorytracker.database.sqlite.InventoryDatabase;
+import ogren.collin.inventorytracker.models.sqlite.inventory.ItemType;
+import ogren.collin.inventorytracker.models.sqlite.inventory.ItemTypeDao;
+import ogren.collin.inventorytracker.models.sqlite.user.User;
+import ogren.collin.inventorytracker.models.sqlite.user.UserDao;
 
 @RunWith(AndroidJUnit4.class)
 public class InventoryDatabaseTest {

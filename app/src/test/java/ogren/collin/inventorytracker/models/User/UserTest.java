@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.Test;
 
+import ogren.collin.inventorytracker.models.sqlite.user.User;
+
 public class UserTest {
 
     @Test
