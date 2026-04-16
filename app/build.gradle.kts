@@ -46,6 +46,7 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.recyclerview)
     implementation(libs.snowpark)
+    implementation(libs.gson)
     testImplementation(libs.junit)
     testImplementation(libs.mockito.core)
     testImplementation(libs.core.testing)

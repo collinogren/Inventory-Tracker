@@ -15,6 +15,7 @@
       </SelectionState>
       <SelectionState runConfigName="InventoryDatabaseTest">
         <option name="selectionMode" value="DROPDOWN" />
+        <DialogSelection />
       </SelectionState>
       <SelectionState runConfigName="write_item_and_read()">
         <option name="selectionMode" value="DROPDOWN" />
