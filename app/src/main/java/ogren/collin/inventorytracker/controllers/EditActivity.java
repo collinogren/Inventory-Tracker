@@ -19,8 +19,10 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.Objects;
 
 import ogren.collin.inventorytracker.R;
-import ogren.collin.inventorytracker.database.sqlite.InventoryDatabase;
-import ogren.collin.inventorytracker.models.sqlite.inventory.ItemType;
+import ogren.collin.inventorytracker.aws.services.ItemService;
+import ogren.collin.inventorytracker.aws.services.LoadingCallback;
+import ogren.collin.inventorytracker.aws.services.ServiceCallback;
+import ogren.collin.inventorytracker.models.snowflake.inventory.ItemType;
 
 public class EditActivity extends AppCompatActivity {
 
@@ -28,8 +30,6 @@ public class EditActivity extends AppCompatActivity {
     private TextInputEditText itemQuantityTextInput;
 
     private MaterialButton confirmEditButton;
-    private MaterialButton addButton;
-    private MaterialButton subtractButton;
 
     private String name = "";
     private Long quantity;
@@ -57,8 +57,8 @@ public class EditActivity extends AppCompatActivity {
         itemNameTextInput = findViewById(R.id.itemEditNameTextInput);
         itemQuantityTextInput = findViewById(R.id.itemEditQuantityTextInput);
         confirmEditButton = findViewById(R.id.confirmEditButton);
-        addButton = findViewById(R.id.itemEditAddButton);
-        subtractButton = findViewById(R.id.itemEditSubtractButton);
+        MaterialButton addButton = findViewById(R.id.itemEditAddButton);
+        MaterialButton subtractButton = findViewById(R.id.itemEditSubtractButton);
 
         // Get data from the InventoryActivity about what item has been selected
         Bundle extras = getIntent().getExtras();
@@ -142,17 +142,19 @@ public class EditActivity extends AppCompatActivity {
                             dialog.cancel();
                         })
                         .setPositiveButton(R.string.delete, (dialog, which) -> { // Provide a delete button.
-                            new Thread(() -> {
-                                InventoryDatabase.getItemDao()
-                                        .delete(
-                                                InventoryDatabase.getItemDao().getById(id, InventoryActivity.getUserId())
-                                        );
-
-                                runOnUiThread(() -> {
+                            ItemType itemToDelete = new ItemType(id, name, quantity, InventoryActivity.getUserId());
+                            ItemService.deleteItem(itemToDelete, new LoadingCallback<>(this, new ServiceCallback<Integer>() {
+                                @Override
+                                public void onSuccess(Integer result) {
                                     dialog.dismiss();
                                     finish();
-                                });
-                            }).start();
+                                }
+
+                                @Override
+                                public void onError(Exception e) {
+                                    dialog.dismiss();
+                                }
+                            }));
                         })
                         .show();
             }
@@ -169,19 +171,21 @@ public class EditActivity extends AppCompatActivity {
 
     // Write the changes to the database.
     public void confirmEdit(View view) {
-        new Thread(() -> {
-            // Grab the item by ID.
-            ItemType item = InventoryDatabase.getItemDao().getById(id, InventoryActivity.getUserId());
-            // Update the item.
-            item.setName(Objects.requireNonNull(itemNameTextInput.getText()).toString());
-            item.setQuantity(Long.parseLong(Objects.requireNonNull(itemQuantityTextInput.getText()).toString()));
+        String newName = Objects.requireNonNull(itemNameTextInput.getText()).toString();
+        long newQuantity = Long.parseLong(Objects.requireNonNull(itemQuantityTextInput.getText()).toString());
 
-            // Update the item.
-            InventoryDatabase.getItemDao().update(item);
+        ItemType updatedItem = new ItemType(id, newName, newQuantity, InventoryActivity.getUserId());
+        ItemService.editItems(updatedItem, new LoadingCallback<>(this, new ServiceCallback<Integer>() {
+            @Override
+            public void onSuccess(Integer result) {
+                finish();
+            }
 
-            // Finish the screen to return to the inventory activity.
-            runOnUiThread(this::finish);
-        }).start();
+            @Override
+            public void onError(Exception e) {
+                // Handle error
+            }
+        }));
     }
 
     // Finish the activity without writing to the database.

@@ -23,10 +23,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.search.SearchView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import ogren.collin.inventorytracker.R;
-import ogren.collin.inventorytracker.database.sqlite.InventoryDatabase;
-import ogren.collin.inventorytracker.models.sqlite.inventory.ItemType;
+import ogren.collin.inventorytracker.aws.services.ItemService;
+import ogren.collin.inventorytracker.aws.services.LoadingCallback;
+import ogren.collin.inventorytracker.aws.services.ServiceCallback;
+import ogren.collin.inventorytracker.models.snowflake.inventory.ItemType;
 import ogren.collin.inventorytracker.viewcomponents.DatabaseViewAdapter;
 
 public class InventoryActivity extends AppCompatActivity {
@@ -98,13 +101,7 @@ public class InventoryActivity extends AppCompatActivity {
             @Override
             public void onItemRangeChanged(int positionStart, int itemCount) {
                 super.onItemRangeChanged(positionStart, itemCount);
-                new Thread(() -> {
-                    allData.clear();
-                    allData.addAll(fetchDatabaseData());
-                    runOnUiThread(() -> {
-                        inventoryRecyclerView.getAdapter().notifyDataSetChanged();
-                    });
-                }).start();
+                populateDatabaseDisplay();
             }
         };
 
@@ -112,19 +109,23 @@ public class InventoryActivity extends AppCompatActivity {
         inventorySearchView.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence charSequence, int _start, int _before, int _count) {
-                new Thread(() -> {
-                    // Clear the filtered data and then add all returned values.
-                    // SQLite has fairly weak built-in fuzzy searching, but this will do decently.
-                    filteredData.clear();
-                    filteredData.addAll(searchDatabaseData("%"+inventorySearchView.getText()+"%"));
+                String searchTerm = charSequence.toString();
+                ItemType criteria = new ItemType(null, searchTerm, null, userId);
+                ItemService.searchItems(criteria, new ServiceCallback<ItemType[]>() {
+                    @Override
+                    public void onSuccess(ItemType[] result) {
+                        runOnUiThread(() -> {
+                            filteredData.clear();
+                            filteredData.addAll(Arrays.asList(result));
+                            if (inventorySearchRecyclerView.getAdapter() != null) {
+                                inventorySearchRecyclerView.getAdapter().notifyDataSetChanged();
+                            }
+                        });
+                    }
 
-                    // Notify the recycler view that the data has changed.
-                    runOnUiThread(() -> {
-                        if (inventorySearchRecyclerView.getAdapter() != null) {
-                            inventorySearchRecyclerView.getAdapter().notifyDataSetChanged();
-                        }
-                    });
-                }).start();
+                    @Override
+                    public void onError(Exception e) {}
+                });
             }
             @Override
             public void afterTextChanged(Editable _editable) {}
@@ -156,39 +157,42 @@ public class InventoryActivity extends AppCompatActivity {
         populateDatabaseDisplay();
     }
 
-    // Query the database for all data related to the active user.
-    private ArrayList<ItemType> fetchDatabaseData() {
-        return (ArrayList<ItemType>) InventoryDatabase.getItemDao().getAll(InventoryActivity.getUserId());
-    }
-
-    // Query the database for all data that matches the given search term and is related to the active user.
-    private ArrayList<ItemType> searchDatabaseData(String searchTerm) {
-        return (ArrayList<ItemType>) InventoryDatabase.getItemDao().search(searchTerm, InventoryActivity.getUserId());
-    }
-
     // Fetch the data from the database and place it into the recycler views.
     private void populateDatabaseDisplay() {
-        new Thread(() -> {
-            // Fetch the data.
-            allData.clear();
-            allData.addAll(fetchDatabaseData());
+        ItemType criteria = new ItemType(null, null, null, userId);
+        ItemService.getAllItems(criteria, new LoadingCallback<>(this, new ServiceCallback<ItemType[]>() {
+            @Override
+            public void onSuccess(ItemType[] result) {
+                allData.clear();
+                allData.addAll(Arrays.asList(result));
 
-            // Fetch filtered data.
-            filteredData.clear();
-            filteredData.addAll(searchDatabaseData("%"+inventorySearchView.getText()+"%"));
-
-            // Populate the recycler views.
-            runOnUiThread(() -> {
-                inventoryRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+                inventoryRecyclerView.setLayoutManager(new LinearLayoutManager(InventoryActivity.this));
                 inventoryRecyclerView.setAdapter(new DatabaseViewAdapter(allData));
-                inventorySearchRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+                inventorySearchRecyclerView.setLayoutManager(new LinearLayoutManager(InventoryActivity.this));
 
-                // Add the search recycler view data observer to synchronize the two recycler views.
-                DatabaseViewAdapter filterDatabaseViewAdapter = new DatabaseViewAdapter(filteredData);
-                filterDatabaseViewAdapter.registerAdapterDataObserver(inventorySearchDataObserver);
-                inventorySearchRecyclerView.setAdapter(filterDatabaseViewAdapter);
-            });
-        }).start();
+                // Re-filter search results if needed
+                String searchTerm = inventorySearchView.getText().toString();
+                ItemType searchCriteria = new ItemType(null, "%" + searchTerm + "%", null, userId);
+                ItemService.searchItems(searchCriteria, new ServiceCallback<ItemType[]>() {
+                    @Override
+                    public void onSuccess(ItemType[] searchResult) {
+                        runOnUiThread(() -> {
+                            filteredData.clear();
+                            filteredData.addAll(Arrays.asList(searchResult));
+                            DatabaseViewAdapter filterDatabaseViewAdapter = new DatabaseViewAdapter(filteredData);
+                            filterDatabaseViewAdapter.registerAdapterDataObserver(inventorySearchDataObserver);
+                            inventorySearchRecyclerView.setAdapter(filterDatabaseViewAdapter);
+                        });
+                    }
+
+                    @Override
+                    public void onError(Exception e) {}
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {}
+        }));
     }
 
     // Request the SEND_SMS permission when the user first logs-in.

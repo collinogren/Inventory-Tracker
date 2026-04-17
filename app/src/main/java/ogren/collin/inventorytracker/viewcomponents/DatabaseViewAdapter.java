@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 import ogren.collin.inventorytracker.R;
 import ogren.collin.inventorytracker.controllers.EditActivity;
-import ogren.collin.inventorytracker.models.sqlite.inventory.ItemType;
+import ogren.collin.inventorytracker.models.snowflake.inventory.ItemType;
 
 public class DatabaseViewAdapter extends RecyclerView.Adapter<DatabaseViewAdapter.ViewHolder> {
 
@@ -40,9 +40,9 @@ public class DatabaseViewAdapter extends RecyclerView.Adapter<DatabaseViewAdapte
             // When the edit button is pressed, the user will be taken to the edit activity.
             editButton.setOnClickListener(editButtonView -> {
                 Intent intent = new Intent(editButtonView.getContext(), EditActivity.class);
-                intent.putExtra("id", itemType.getId());
-                intent.putExtra("name", itemType.getName());
-                intent.putExtra("quantity", itemType.getQuantity());
+                intent.putExtra("id", itemType.id());
+                intent.putExtra("name", itemType.name());
+                intent.putExtra("quantity", itemType.quantity());
                 editButtonView.getContext().startActivity(intent);
             });
         }
@@ -77,8 +77,8 @@ public class DatabaseViewAdapter extends RecyclerView.Adapter<DatabaseViewAdapte
     // On binding, give each data view its required data.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.getNameTextView().setText(itemTypes.get(position).getName());
-        holder.getQuantityTextView().setText(String.valueOf(itemTypes.get(position).getQuantity()));
+        holder.getNameTextView().setText(itemTypes.get(position).name());
+        holder.getQuantityTextView().setText(String.valueOf(itemTypes.get(position).quantity()));
         holder.setItemType(itemTypes.get(position));
     }
 

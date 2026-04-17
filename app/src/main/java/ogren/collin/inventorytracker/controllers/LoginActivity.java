@@ -20,7 +20,6 @@ import ogren.collin.inventorytracker.R;
 import ogren.collin.inventorytracker.aws.services.LoadingCallback;
 import ogren.collin.inventorytracker.aws.services.ServiceCallback;
 import ogren.collin.inventorytracker.aws.services.UserService;
-import ogren.collin.inventorytracker.database.sqlite.InventoryDatabase;
 import ogren.collin.inventorytracker.models.snowflake.users.User;
 
 // Activity to provide login functionality for users.
@@ -57,10 +56,6 @@ public class LoginActivity extends AppCompatActivity {
             usernameTextField.setError(null);
             passwordTextField.setError(null);
         });
-
-        // Build the database using Room so that user credentials can be checked.
-        InventoryDatabase inventoryDatabase = Room.databaseBuilder(getApplicationContext(), InventoryDatabase.class, "inventory").build();
-        InventoryDatabase.buildGlobalDatabaseAccess(inventoryDatabase);
     }
 
     // Read username and password, do some simple validation, and send the data to an async login function

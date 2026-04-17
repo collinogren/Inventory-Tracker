@@ -18,8 +18,10 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.Objects;
 
 import ogren.collin.inventorytracker.R;
-import ogren.collin.inventorytracker.database.sqlite.InventoryDatabase;
-import ogren.collin.inventorytracker.models.sqlite.inventory.ItemType;
+import ogren.collin.inventorytracker.aws.services.ItemService;
+import ogren.collin.inventorytracker.aws.services.LoadingCallback;
+import ogren.collin.inventorytracker.aws.services.ServiceCallback;
+import ogren.collin.inventorytracker.models.snowflake.inventory.ItemType;
 
 public class CreateActivity extends AppCompatActivity {
 
@@ -95,18 +97,21 @@ public class CreateActivity extends AppCompatActivity {
 
     // Add a new item type to the database.
     public void create(View view) {
-        new Thread(() -> {
-            // Gather information from the user input fields.
-            String itemType = Objects.requireNonNull(itemNameTextInput.getText()).toString();
-            long itemQuantity = Long.parseLong(Objects.requireNonNull(itemQuantityTextInput.getText()).toString());
+        // Gather information from the user input fields.
+        String itemType = Objects.requireNonNull(itemNameTextInput.getText()).toString();
+        long itemQuantity = Long.parseLong(Objects.requireNonNull(itemQuantityTextInput.getText()).toString());
 
-            // Create the new item type in the database.
-            InventoryDatabase.getItemDao()
-                    .insert(new ItemType(itemType, itemQuantity));
+        // Create the new item type in the database.
+        ItemType newItem = new ItemType(null, itemType, itemQuantity, InventoryActivity.getUserId());
+        ItemService.createItem(newItem, new LoadingCallback<>(this, new ServiceCallback<Integer>() {
+            @Override
+            public void onSuccess(Integer result) {
+                finish();
+            }
 
-            // Finish the creation screen.
-            runOnUiThread(this::finish);
-        }).start();
+            @Override
+            public void onError(Exception e) {}
+        }));
     }
 
     // Finish the creation screen without adding anything to the database.
