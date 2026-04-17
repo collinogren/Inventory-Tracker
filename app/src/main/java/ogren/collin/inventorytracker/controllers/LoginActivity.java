@@ -83,9 +83,24 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         // Attempt to login.
-        new Thread(() -> {
-            loginAsync(username, password);
-        }).start();
+        UserService.login(username, password, new UserService.ServiceCallback<User>() {
+            @Override
+            public void onSuccess(User user) {
+                // Otherwise, a user must have been found, so go to the InventoryActivity with the retrieved user ID.
+                runOnUiThread(() -> {
+                    Intent intent = new Intent(LoginActivity.this, InventoryActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.putExtra("userId", user.id());
+                    startActivity(intent);
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                // If no user was returned or an error occurred, give an error message.
+                runOnUiThread(() -> passwordTextField.setError(getString(R.string.invalid_credentials_please_recheck_your_username_and_password_and_try_again)));
+            }
+        });
     }
 
     // Read username and password, do some simple validation, and asynchronously create a new account.
@@ -110,46 +125,24 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         // Attempt to create the new account.
-        new Thread(() -> {
-            boolean creationSuccessful;
-            // Attempt to insert the new user credentials.
-            try {
-                long result = UserService.register(username, password);
-                // If the number of rows modified is greater than 0 it was a success.
-                creationSuccessful = result > 0;
-            } catch (Exception e) {
-                // If there was an issue, such as a username already existing, then the creation failed.
-                creationSuccessful = false;
+        UserService.register(username, password, new UserService.ServiceCallback<Integer>() {
+            @Override
+            public void onSuccess(Integer result) {
+                if (result != null && result > 0) {
+                    // Successful creation means a login can now happen.
+                    handleLogin(view);
+                } else {
+                    onError(new Exception("Registration failed"));
+                }
             }
 
-            if (creationSuccessful) { // Successful creation means a login can now happen.
-                loginAsync(username, password);
-            } else { // Otherwise, display an error message in the username field.
+            @Override
+            public void onError(Exception e) {
+                // Otherwise, display an error message in the username field.
                 runOnUiThread(() -> {
                     usernameTextField.setError(getString(R.string.an_account_with_that_username_already_exists_please_select_a_different_username_and_try_again));
                 });
             }
-        }).start();
-    }
-
-    // Async function that attempts to log the user into their account.
-    private void loginAsync(String username, String password) {
-        // Get the user that has a matching username and password.
-        User user = UserService.login(username, password);
-
-        // Check if a user was returned.
-        if (user == null) {
-            // If no user was returned, give an error message.
-            runOnUiThread(() -> passwordTextField.setError(getString(R.string.invalid_credentials_please_recheck_your_username_and_password_and_try_again)));
-            return;
-        }
-
-        // Otherwise, a user must have been found, so go to the InventoryActivity with the retrieved user ID.
-        runOnUiThread(() -> {
-            Intent intent = new Intent(this, InventoryActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra("userId", user.id());
-            startActivity(intent);
         });
     }
 }

@@ -7,67 +7,70 @@ import android.util.Log;
 
 import com.amplifyframework.api.rest.RestOptions;
 import com.amplifyframework.core.Amplify;
-import com.google.gson.JsonParseException;
-
-import org.json.JSONException;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 
 import ogren.collin.inventorytracker.models.snowflake.users.User;
 
 public class UserService {
+    private static final String TAG = "UserService";
 
-    public static Integer register(String username, String password) {
-        return register(new User(null, username, password));
+    public interface ServiceCallback<T> {
+        void onSuccess(T result);
+        void onError(Exception e);
     }
 
-    public static Integer register(User user) {
+    public static void register(String username, String password, ServiceCallback<Integer> callback) {
+        register(new User(null, username, password), callback);
+    }
+
+    public static void register(User user, ServiceCallback<Integer> callback) {
         RestOptions request =
                 RestOptions.builder()
                         .addPath(USERS_REGISTER)
                         .addBody(GSON.toJson(user).getBytes(StandardCharsets.UTF_8))
                         .build();
 
-        AtomicReference<Integer> registerStatus = new AtomicReference<>();
         Amplify.API.post(request,
                 response -> {
                     try {
-                        registerStatus.set(ServiceHelper.unwrapResult(response.getData().asJSONObject().toString(), Integer.class));
+                        Integer status = ServiceHelper.unwrapResult(response.getData().asJSONObject().toString(), Integer.class);
+                        callback.onSuccess(status);
                     } catch (Exception e) {
-                        Log.e("UserService", Objects.requireNonNull(e.getMessage()));
-                        registerStatus.set(null);
+                        Log.e(TAG, "Register parse error: " + e.getMessage());
+                        callback.onError(e);
                     }
                 },
-                error -> registerStatus.set(null));
-
-        return registerStatus.get();
+                error -> {
+                    Log.e(TAG, "Register API error: " + error.getMessage());
+                    callback.onError(error);
+                });
     }
 
-    public static User login(String username, String password) {
-        return login(new User(null, username, password));
+    public static void login(String username, String password, ServiceCallback<User> callback) {
+        login(new User(null, username, password), callback);
     }
 
-    public static User login(User user) {
+    public static void login(User user, ServiceCallback<User> callback) {
         RestOptions request =
                 RestOptions.builder()
                         .addPath(USERS_LOGIN)
                         .addBody(GSON.toJson(user).getBytes(StandardCharsets.UTF_8))
                         .build();
 
-        AtomicReference<User> retrievedUser = new AtomicReference<>();
         Amplify.API.post(request,
                 response -> {
                     try {
-                        retrievedUser.set(ServiceHelper.unwrapResultArrayKnownSingle(response.getData().asJSONObject().toString(), User[].class));
+                        User retrievedUser = ServiceHelper.unwrapResultArrayKnownSingle(response.getData().asJSONObject().toString(), User[].class);
+                        callback.onSuccess(retrievedUser);
                     } catch (Exception e) {
-                        Log.e("UserService", Objects.requireNonNull(e.getMessage()));
-                        retrievedUser.set(null);
+                        Log.e(TAG, "Login parse error: " + e.getMessage());
+                        callback.onError(e);
                     }
                 },
-                error -> retrievedUser.set(null));
-
-        return retrievedUser.get();
+                error -> {
+                    Log.e(TAG, "Login API error: " + error.getMessage());
+                    callback.onError(error);
+                });
     }
 }
