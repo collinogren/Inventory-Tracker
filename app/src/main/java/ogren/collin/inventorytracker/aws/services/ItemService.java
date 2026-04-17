@@ -1,88 +1,131 @@
 package ogren.collin.inventorytracker.aws.services;
 
-import static ogren.collin.inventorytracker.aws.services.APIConstants.ITEMS_CREATE;
-import static ogren.collin.inventorytracker.aws.services.APIConstants.ITEMS_GET_ALL;
-import static ogren.collin.inventorytracker.aws.services.APIConstants.ITEMS_GET_ONE;
-import static ogren.collin.inventorytracker.aws.services.APIConstants.RESULT;
+import static ogren.collin.inventorytracker.aws.services.APIConstants.*;
 import static ogren.collin.inventorytracker.models.snowflake.ModelConstants.GSON;
+
+import android.util.Log;
 
 import com.amplifyframework.api.rest.RestOptions;
 import com.amplifyframework.core.Amplify;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
-
-import org.json.JSONException;
 
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.atomic.AtomicReference;
 
 import ogren.collin.inventorytracker.models.snowflake.inventory.ItemType;
 
 public class ItemService {
-    public static Integer createItem(ItemType itemType) {
-        RestOptions request =
-                RestOptions.builder()
-                        .addPath(ITEMS_CREATE)
-                        .addBody(GSON.toJson(itemType).getBytes(StandardCharsets.UTF_8))
-                        .build();
+    private static final String TAG = "ItemService";
 
-        AtomicReference<Integer> creationStatus = new AtomicReference<>();
+    public interface ServiceCallback<T> {
+        void onSuccess(T result);
+        void onError(Exception e);
+    }
+
+    public static void createItem(ItemType item, ServiceCallback<Integer> callback) {
+        RestOptions request = RestOptions.builder()
+                .addPath(ITEMS_CREATE)
+                .addBody(GSON.toJson(item).getBytes(StandardCharsets.UTF_8))
+                .build();
+
         Amplify.API.post(request,
                 response -> {
                     try {
-                        creationStatus.set((Integer) response.getData().asJSONObject().get(RESULT));
-                    } catch (JSONException | ClassCastException | ArrayIndexOutOfBoundsException ignored) {
-                        creationStatus.set(null);
+                        Integer result = ServiceHelper.unwrapResult(response.getData().asJSONObject().toString(), Integer.class);
+                        callback.onSuccess(result);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Create error: " + e.getMessage());
+                        callback.onError(e);
                     }
                 },
-                error -> creationStatus.set(null));
-
-        return creationStatus.get();
+                callback::onError);
     }
 
-    public static ItemType getOneItem(Long itemID) {
-        ItemType item = new ItemType(itemID, null, null, null);
+    public static void getOneItem(ItemType item, ServiceCallback<ItemType> callback) {
+        RestOptions request = RestOptions.builder()
+                .addPath(ITEMS_GET_ONE)
+                .addBody(GSON.toJson(item).getBytes(StandardCharsets.UTF_8))
+                .build();
 
-        RestOptions request =
-                RestOptions.builder()
-                        .addPath(ITEMS_GET_ONE)
-                        .addBody(GSON.toJson(item).getBytes(StandardCharsets.UTF_8))
-                        .build();
-
-        AtomicReference<ItemType> itemType = new AtomicReference<>();
-        Amplify.API.get(request,
+        Amplify.API.post(request,
                 response -> {
                     try {
-                        itemType.set(GSON.fromJson((String) ((Object[])
-                                response.getData().asJSONObject().get(RESULT))[0],
-                                ItemType.class));
-                    } catch (JSONException | ClassCastException | ArrayIndexOutOfBoundsException ignored) {
-                        itemType.set(null);
+                        ItemType result = ServiceHelper.unwrapResultArrayKnownSingle(response.getData().asJSONObject().toString(), ItemType[].class);
+                        callback.onSuccess(result);
+                    } catch (Exception e) {
+                        callback.onError(e);
                     }
                 },
-                error -> itemType.set(null));
-
-        return itemType.get();
+                callback::onError);
     }
 
-    public static ItemType getAllItem() {
-        RestOptions request =
-                RestOptions.builder()
-                        .addPath(ITEMS_GET_ALL)
-                        .build();
+    public static void getAllItems(ItemType criteria, ServiceCallback<ItemType[]> callback) {
+        RestOptions request = RestOptions.builder()
+                .addPath(ITEMS_GET_ALL)
+                .addBody(GSON.toJson(criteria).getBytes(StandardCharsets.UTF_8))
+                .build();
 
-        AtomicReference<ItemType> itemType = new AtomicReference<>();
-        Amplify.API.get(request,
+        Amplify.API.post(request,
                 response -> {
                     try {
-                        itemType.set(GSON.fromJson(JsonParser.parseString(response.getData().asString()),
-                                ItemType.class));
-                    } catch (JsonParseException | ArrayIndexOutOfBoundsException ignored) {
-                        itemType.set(null);
+                        ItemType[] result = ServiceHelper.unwrapResultArray(response.getData().asJSONObject().toString(), ItemType[].class);
+                        callback.onSuccess(result);
+                    } catch (Exception e) {
+                        callback.onError(e);
                     }
                 },
-                error -> itemType.set(null));
+                callback::onError);
+    }
 
-        return itemType.get();
+    public static void searchItems(ItemType searchCriteria, ServiceCallback<ItemType[]> callback) {
+        RestOptions request = RestOptions.builder()
+                .addPath(ITEMS_SEARCH)
+                .addBody(GSON.toJson(searchCriteria).getBytes(StandardCharsets.UTF_8))
+                .build();
+
+        Amplify.API.post(request,
+                response -> {
+                    try {
+                        ItemType[] result = ServiceHelper.unwrapResultArray(response.getData().asJSONObject().toString(), ItemType[].class);
+                        callback.onSuccess(result);
+                    } catch (Exception e) {
+                        callback.onError(e);
+                    }
+                },
+                callback::onError);
+    }
+
+    public static void editItems(ItemType item, ServiceCallback<Integer> callback) {
+        RestOptions request = RestOptions.builder()
+                .addPath(ITEMS_EDIT)
+                .addBody(GSON.toJson(item).getBytes(StandardCharsets.UTF_8))
+                .build();
+
+        Amplify.API.put(request,
+                response -> {
+                    try {
+                        Integer result = ServiceHelper.unwrapResult(response.getData().asJSONObject().toString(), Integer.class);
+                        callback.onSuccess(result);
+                    } catch (Exception e) {
+                        callback.onError(e);
+                    }
+                },
+                callback::onError);
+    }
+
+    public static void deleteItem(ItemType item, ServiceCallback<Integer> callback) {
+        RestOptions request = RestOptions.builder()
+                .addPath(ITEMS_DELETE)
+                .addBody(GSON.toJson(item).getBytes(StandardCharsets.UTF_8))
+                .build();
+
+        Amplify.API.delete(request,
+                response -> {
+                    try {
+                        Integer result = ServiceHelper.unwrapResult(response.getData().asJSONObject().toString(), Integer.class);
+                        callback.onSuccess(result);
+                    } catch (Exception e) {
+                        callback.onError(e);
+                    }
+                },
+                callback::onError);
     }
 }

@@ -4,7 +4,6 @@ public class APIConstants {
     // Routes
     public static final String USERS_LOGIN = "/users/login";
     public static final String USERS_REGISTER = "/users/register";
-    public static final String WORK_GROUPS_CREATE = "/work_groups/create";
     public static final String ITEMS_CREATE = "/items/create";
     public static final String ITEMS_GET_ONE = "/items/get_one";
     public static final String ITEMS_GET_ALL = "/items/get_all";
