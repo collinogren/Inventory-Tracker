@@ -17,6 +17,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.Objects;
 
 import ogren.collin.inventorytracker.R;
+import ogren.collin.inventorytracker.aws.services.LoadingCallback;
+import ogren.collin.inventorytracker.aws.services.ServiceCallback;
 import ogren.collin.inventorytracker.aws.services.UserService;
 import ogren.collin.inventorytracker.database.sqlite.InventoryDatabase;
 import ogren.collin.inventorytracker.models.snowflake.users.User;
@@ -83,24 +85,22 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         // Attempt to login.
-        UserService.login(username, password, new UserService.ServiceCallback<User>() {
+        UserService.login(username, password, new LoadingCallback<>(this, new ServiceCallback<>() {
             @Override
             public void onSuccess(User user) {
                 // Otherwise, a user must have been found, so go to the InventoryActivity with the retrieved user ID.
-                runOnUiThread(() -> {
-                    Intent intent = new Intent(LoginActivity.this, InventoryActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.putExtra("userId", user.id());
-                    startActivity(intent);
-                });
+                Intent intent = new Intent(LoginActivity.this, InventoryActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra("userId", user.id());
+                startActivity(intent);
             }
 
             @Override
             public void onError(Exception e) {
                 // If no user was returned or an error occurred, give an error message.
-                runOnUiThread(() -> passwordTextField.setError(getString(R.string.invalid_credentials_please_recheck_your_username_and_password_and_try_again)));
+                passwordTextField.setError(getString(R.string.invalid_credentials_please_recheck_your_username_and_password_and_try_again));
             }
-        });
+        }));
     }
 
     // Read username and password, do some simple validation, and asynchronously create a new account.
@@ -125,7 +125,7 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         // Attempt to create the new account.
-        UserService.register(username, password, new UserService.ServiceCallback<Integer>() {
+        UserService.register(username, password, new LoadingCallback<>(this, new ServiceCallback<>() {
             @Override
             public void onSuccess(Integer result) {
                 if (result != null && result > 0) {
@@ -139,10 +139,8 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onError(Exception e) {
                 // Otherwise, display an error message in the username field.
-                runOnUiThread(() -> {
-                    usernameTextField.setError(getString(R.string.an_account_with_that_username_already_exists_please_select_a_different_username_and_try_again));
-                });
+                usernameTextField.setError(getString(R.string.an_account_with_that_username_already_exists_please_select_a_different_username_and_try_again));
             }
-        });
+        }));
     }
 }

@@ -45,32 +45,6 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/addButton"
-                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="@string/add_an_item"
-                app:icon="@drawable/add"
-                app:iconTint="@color/green"
-                android:gravity="center"
-                app:iconGravity="textStart"
-                android:width="64dp"
-                android:height="64dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/subtractButton"
-                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="@string/remove_an_item"
-                app:icon="@drawable/remove"
-                app:iconTint="@color/red"
-                android:gravity="center"
-                app:iconGravity="textStart"
-                android:width="64dp"
-                android:height="64dp" />
-
-            <com.google.android.material.button.MaterialButton
                 android:id="@+id/editButton"
                 style="@style/Widget.Material3.Button.IconButton"
                 android:layout_width="wrap_content"

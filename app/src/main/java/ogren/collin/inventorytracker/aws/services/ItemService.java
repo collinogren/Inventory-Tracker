@@ -15,11 +15,6 @@ import ogren.collin.inventorytracker.models.snowflake.inventory.ItemType;
 public class ItemService {
     private static final String TAG = "ItemService";
 
-    public interface ServiceCallback<T> {
-        void onSuccess(T result);
-        void onError(Exception e);
-    }
-
     public static void createItem(ItemType item, ServiceCallback<Integer> callback) {
         RestOptions request = RestOptions.builder()
                 .addPath(ITEMS_CREATE)

@@ -28,6 +28,8 @@ public class EditActivity extends AppCompatActivity {
     private TextInputEditText itemQuantityTextInput;
 
     private MaterialButton confirmEditButton;
+    private MaterialButton addButton;
+    private MaterialButton subtractButton;
 
     private String name = "";
     private Long quantity;
@@ -55,6 +57,8 @@ public class EditActivity extends AppCompatActivity {
         itemNameTextInput = findViewById(R.id.itemEditNameTextInput);
         itemQuantityTextInput = findViewById(R.id.itemEditQuantityTextInput);
         confirmEditButton = findViewById(R.id.confirmEditButton);
+        addButton = findViewById(R.id.itemEditAddButton);
+        subtractButton = findViewById(R.id.itemEditSubtractButton);
 
         // Get data from the InventoryActivity about what item has been selected
         Bundle extras = getIntent().getExtras();
@@ -108,6 +112,23 @@ public class EditActivity extends AppCompatActivity {
 
             @Override
             public void beforeTextChanged(CharSequence _charSequence, int _start, int _count, int _after) {}
+        });
+
+        // Setup add and subtract buttons
+        addButton.setOnClickListener(v -> {
+            try {
+                long currentQuantity = Long.parseLong(Objects.requireNonNull(itemQuantityTextInput.getText()).toString());
+                itemQuantityTextInput.setText(String.valueOf(currentQuantity + 1));
+            } catch (NumberFormatException ignored) {}
+        });
+
+        subtractButton.setOnClickListener(v -> {
+            try {
+                long currentQuantity = Long.parseLong(Objects.requireNonNull(itemQuantityTextInput.getText()).toString());
+                if (currentQuantity > 0) {
+                    itemQuantityTextInput.setText(String.valueOf(currentQuantity - 1));
+                }
+            } catch (NumberFormatException ignored) {}
         });
 
         // Setup delete button

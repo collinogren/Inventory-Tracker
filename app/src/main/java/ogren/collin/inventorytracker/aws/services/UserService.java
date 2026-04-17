@@ -15,11 +15,6 @@ import ogren.collin.inventorytracker.models.snowflake.users.User;
 public class UserService {
     private static final String TAG = "UserService";
 
-    public interface ServiceCallback<T> {
-        void onSuccess(T result);
-        void onError(Exception e);
-    }
-
     public static void register(String username, String password, ServiceCallback<Integer> callback) {
         register(new User(null, username, password), callback);
     }
