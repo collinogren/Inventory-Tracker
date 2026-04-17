@@ -31,4 +31,8 @@
     <string name="change_app_permissions">Change App Permissions</string>
     <string name="logout">Logout</string>
     <string name="allow_the_app_to_send_sms_messages">Allow The App to Send SMS Messages</string>
+    <string name="username_cannot_be_empty">Username cannot be empty.</string>
+    <string name="password_cannot_be_empty">Password cannot be empty.</string>
+    <string name="an_account_with_that_username_already_exists_please_select_a_different_username_and_try_again">An account with that username already exists. Please select a different username and try again.</string>
+    <string name="invalid_credentials_please_recheck_your_username_and_password_and_try_again">Invalid credentials. Please recheck your username and password and try again.</string>
 </resources>

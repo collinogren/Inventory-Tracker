@@ -1,0 +1,14 @@
+{
+  "api": {
+    "plugins": {
+      "awsAPIPlugin": {
+        "inventory-app-api": {
+          "endpointType": "REST",
+          "endpoint": "https://motqqaq58g.execute-api.us-west-2.amazonaws.com/dev",
+          "region": "us-west-2",
+          "authorizationType": "NONE"
+        }
+      }
+    }
+  }
+}

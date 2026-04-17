@@ -1,7 +1,6 @@
 package ogren.collin.inventorytracker.controllers;
 
 import android.content.Intent;
-import android.database.sqlite.SQLiteConstraintException;
 import android.os.Bundle;
 import android.view.View;
 
@@ -17,8 +16,10 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.Objects;
 
 import ogren.collin.inventorytracker.R;
+import ogren.collin.inventorytracker.aws.services.ServiceHelper;
+import ogren.collin.inventorytracker.aws.services.UserService;
 import ogren.collin.inventorytracker.database.sqlite.InventoryDatabase;
-import ogren.collin.inventorytracker.models.sqlite.user.User;
+import ogren.collin.inventorytracker.models.snowflake.users.User;
 
 // Activity to provide login functionality for users.
 public class LoginActivity extends AppCompatActivity {
@@ -68,12 +69,12 @@ public class LoginActivity extends AppCompatActivity {
 
         // Check if the username is empty and if so, give an error message.
         if (username.isEmpty()) {
-            usernameTextField.setError("Username cannot be empty.");
+            usernameTextField.setError(getString(R.string.username_cannot_be_empty));
         }
 
         // Check if the password is empty and if so, give an error message.
         if (password.isEmpty()) {
-            passwordTextField.setError("Password cannot be empty.");
+            passwordTextField.setError(getString(R.string.password_cannot_be_empty));
         }
 
         // Return early if either field is empty.
@@ -95,12 +96,12 @@ public class LoginActivity extends AppCompatActivity {
 
         // Check if the username is empty and if so, give an error message.
         if (username.isEmpty()) {
-            usernameTextField.setError("Username cannot be empty.");
+            usernameTextField.setError(getString(R.string.username_cannot_be_empty));
         }
 
         // Check if the password is empty and if so, give an error message.
         if (password.isEmpty()) {
-            passwordTextField.setError("Password cannot be empty.");
+            passwordTextField.setError(getString(R.string.password_cannot_be_empty));
         }
 
         // Return early if either field is empty.
@@ -113,15 +114,10 @@ public class LoginActivity extends AppCompatActivity {
             boolean creationSuccessful;
             // Attempt to insert the new user credentials.
             try {
-                long result = InventoryDatabase.getUserDao().insert(
-                        new User(
-                                username,
-                                password
-                        )
-                );
+                long result = UserService.register(username, password);
                 // If the number of rows modified is greater than 0 it was a success.
                 creationSuccessful = result > 0;
-            } catch (SQLiteConstraintException constraintException) {
+            } catch (Exception e) {
                 // If there was an issue, such as a username already existing, then the creation failed.
                 creationSuccessful = false;
             }
@@ -130,7 +126,7 @@ public class LoginActivity extends AppCompatActivity {
                 loginAsync(username, password);
             } else { // Otherwise, display an error message in the username field.
                 runOnUiThread(() -> {
-                    usernameTextField.setError("An account with that username already exists. Please select a different username and try again.");
+                    usernameTextField.setError(getString(R.string.an_account_with_that_username_already_exists_please_select_a_different_username_and_try_again));
                 });
             }
         }).start();
@@ -139,12 +135,12 @@ public class LoginActivity extends AppCompatActivity {
     // Async function that attempts to log the user into their account.
     private void loginAsync(String username, String password) {
         // Get the user that has a matching username and password.
-        User user = InventoryDatabase.getUserDao().findByName(username, password);
+        User user = UserService.login(username, password);
 
         // Check if a user was returned.
         if (user == null) {
             // If no user was returned, give an error message.
-            runOnUiThread(() -> passwordTextField.setError("Invalid credentials. Please recheck your username and password and try again."));
+            runOnUiThread(() -> passwordTextField.setError(getString(R.string.invalid_credentials_please_recheck_your_username_and_password_and_try_again)));
             return;
         }
 
@@ -152,7 +148,7 @@ public class LoginActivity extends AppCompatActivity {
         runOnUiThread(() -> {
             Intent intent = new Intent(this, InventoryActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra("userId", user.getId());
+            intent.putExtra("userId", user.id());
             startActivity(intent);
         });
     }

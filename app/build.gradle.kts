@@ -26,6 +26,7 @@ android {
         }
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -39,14 +40,16 @@ android {
 
 dependencies {
     annotationProcessor(libs.room.compiler)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.room.runtime)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.recyclerview)
-    implementation(libs.snowpark)
     implementation(libs.gson)
+    implementation(libs.amplify.framework.core)
+    implementation(libs.amplifyframework.aws.api)
     testImplementation(libs.junit)
     testImplementation(libs.mockito.core)
     testImplementation(libs.core.testing)

@@ -1,6 +1,8 @@
 [versions]
 agp = "9.1.1"
+core = "2.35.0"
 coreTesting = "2.2.0"
+desugar_jdk_libs = "2.1.5"
 gson = "2.13.2"
 junit = "4.13.2"
 junitJupiterApi = "6.0.3"
@@ -14,11 +16,12 @@ mockitoCore = "5.23.0"
 recyclerview = "1.4.0"
 robolectric = "4.16.1"
 roomCompilerVersion = "2.8.4"
-snowpark = "2.21"
-snowparkVersion = "latest.release.here"
 
 [libraries]
+amplify-framework-core = { module = "com.amplifyframework:core", version.ref = "core" }
+amplifyframework-aws-api = { module = "com.amplifyframework:aws-api", version.ref = "core" }
 core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
+desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -33,7 +36,6 @@ recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "roomCompilerVersion"}
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomCompilerVersion" }
-snowpark = { module = "com.snowflake:snowpark", version.ref = "snowparkVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
