@@ -7,6 +7,8 @@ import com.amplifyframework.api.rest.RestOptions;
 import com.amplifyframework.core.Amplify;
 import com.google.gson.JsonParseException;
 
+import org.json.JSONException;
+
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -29,9 +31,11 @@ public class UserService {
         Amplify.API.post(request,
                 response -> {
                     try {
-                        registerStatus.set(ServiceHelper.unwrapResult(response.getData().asString(), Integer.class));
+                        registerStatus.set(ServiceHelper.unwrapResult(response.getData().asJSONObject().toString(), Integer.class));
                     } catch (JsonParseException ignored) {
                         registerStatus.set(null);
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
                     }
                 },
                 error -> registerStatus.set(null));
@@ -46,7 +50,7 @@ public class UserService {
     public static User login(User user) {
         RestOptions request =
                 RestOptions.builder()
-                        .addPath(USERS_REGISTER)
+                        .addPath(USERS_LOGIN)
                         .addBody(GSON.toJson(user).getBytes(StandardCharsets.UTF_8))
                         .build();
 
@@ -54,9 +58,11 @@ public class UserService {
         Amplify.API.post(request,
                 response -> {
                     try {
-                        retrievedUser.set(ServiceHelper.unwrapResultArrayKnownSingle(response.getData().toString(), User[].class));
+                        retrievedUser.set(ServiceHelper.unwrapResultArrayKnownSingle(response.getData().asJSONObject().toString(), User[].class));
                     } catch (JsonParseException | ArrayIndexOutOfBoundsException ignored) {
                         retrievedUser.set(null);
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
                     }
                 },
                 error -> retrievedUser.set(null));

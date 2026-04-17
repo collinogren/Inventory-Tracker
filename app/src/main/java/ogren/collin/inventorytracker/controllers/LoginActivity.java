@@ -16,7 +16,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.Objects;
 
 import ogren.collin.inventorytracker.R;
-import ogren.collin.inventorytracker.aws.services.ServiceHelper;
 import ogren.collin.inventorytracker.aws.services.UserService;
 import ogren.collin.inventorytracker.database.sqlite.InventoryDatabase;
 import ogren.collin.inventorytracker.models.snowflake.users.User;
