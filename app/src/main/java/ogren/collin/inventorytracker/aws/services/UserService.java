@@ -3,6 +3,8 @@ package ogren.collin.inventorytracker.aws.services;
 import static ogren.collin.inventorytracker.aws.services.APIConstants.*;
 import static ogren.collin.inventorytracker.models.snowflake.ModelConstants.GSON;
 
+import android.util.Log;
+
 import com.amplifyframework.api.rest.RestOptions;
 import com.amplifyframework.core.Amplify;
 import com.google.gson.JsonParseException;
@@ -10,6 +12,7 @@ import com.google.gson.JsonParseException;
 import org.json.JSONException;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import ogren.collin.inventorytracker.models.snowflake.users.User;
@@ -32,10 +35,9 @@ public class UserService {
                 response -> {
                     try {
                         registerStatus.set(ServiceHelper.unwrapResult(response.getData().asJSONObject().toString(), Integer.class));
-                    } catch (JsonParseException ignored) {
+                    } catch (Exception e) {
+                        Log.e("UserService", Objects.requireNonNull(e.getMessage()));
                         registerStatus.set(null);
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
                     }
                 },
                 error -> registerStatus.set(null));
@@ -59,10 +61,9 @@ public class UserService {
                 response -> {
                     try {
                         retrievedUser.set(ServiceHelper.unwrapResultArrayKnownSingle(response.getData().asJSONObject().toString(), User[].class));
-                    } catch (JsonParseException | ArrayIndexOutOfBoundsException ignored) {
+                    } catch (Exception e) {
+                        Log.e("UserService", Objects.requireNonNull(e.getMessage()));
                         retrievedUser.set(null);
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
                     }
                 },
                 error -> retrievedUser.set(null));
